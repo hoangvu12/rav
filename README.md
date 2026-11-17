@@ -35,7 +35,7 @@ Change a word or a colour in `index.html`, then run `rav render launch -o out.mp
 
 ## Example
 
-The test video is [Opennote's launch video](https://www.youtube.com/watch?v=yU3HqFyj2DI). Its first 5.3 seconds are six text cards and one screen recording. These are the commands the agent ran, shortened:
+The test video is [Opennote's launch video](https://www.youtube.com/watch?v=yU3HqFyj2DI): 54 seconds of text cards, captions over screen recordings, emojis and a logo. The rebuild has 44 lines of live text, 18 clips and 5 pictures cut from the original. These are some of the commands the agent ran:
 
 ```sh
 rav init opennote --video opennote.mp4         # 1920x1080 stage, 29.97 fps, 1605 frames
@@ -50,12 +50,12 @@ rav diff opennote.mp4 out.mp4
 The final diff:
 
 ```
-frames   160 vs 160
-SSIM     mean 0.961  p05 0.920  min 0.920
-colour   ΔE mean 0.7  p95 0.8  (2 is just visible, 10 obvious)
+frames   1605 vs 1605
+SSIM     mean 0.985  p05 0.940  min 0.920
+colour   ΔE mean 0.7  p95 1.0  (2 is just visible, 10 obvious)
 ```
 
-Every line of text sits within 2 px of the original and appears on the same frame. What is left is the typeface. The original uses a font we could not get, so the rebuild uses IBM Plex Mono, sized and weighted from measurements. The 160 frames rendered in 4.5 seconds.
+Every line of text sits within 2 px of the original and appears on the same frame. The screen-recording shots score 0.99 to 1.00. The text cards score 0.93 to 0.98 because of the typeface. The original uses a font we could not get, so the rebuild uses IBM Plex Mono, sized and weighted from measurements. The whole video renders in 47 seconds.
 
 ## Commands
 
