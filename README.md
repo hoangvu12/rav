@@ -2,6 +2,10 @@
 
 Reverse any video. rav rebuilds a video as an HTML page that renders back to the same video, frame for frame. You can then edit the page like any web page and render it again.
 
+https://github.com/user-attachments/assets/d43b66a9-143e-4e94-8fd8-39bda43f1fe8
+
+The original on the left, rav's rebuild on the right, with sound. Details are under [Example](#example).
+
 rav is an agent skill plus a small command-line tool. The agent measures the original with the tool, writes the page, renders it, and diffs the render against the original until they match. The tool is one Go binary with no dependencies. It drives the ffmpeg and Chrome already on your machine and makes no network calls.
 
 ## Install
@@ -52,7 +56,7 @@ The final diff:
 ```
 frames   1605 vs 1605
 SSIM     mean 0.985  p05 0.940  min 0.920
-colour   ΔE mean 0.7  p95 1.0  (2 is just visible, 10 obvious)
+colour   ΔE mean 0.0  p95 0.1  (2 is just visible, 10 obvious)
 ```
 
 Every line of text sits within 2 px of the original and appears on the same frame. The screen-recording shots score 0.99 to 1.00. The text cards score 0.93 to 0.98 because of the typeface. The original uses a font we could not get, so the rebuild uses IBM Plex Mono, sized and weighted from measurements. The whole video renders in 47 seconds.

@@ -116,7 +116,9 @@ func (t *tab) encode(from, to int, path string, png bool, crf string, done *atom
 	}
 	cmd := exec.Command("ffmpeg", "-v", "error", "-nostdin", "-y",
 		"-f", "image2pipe", "-c:v", codec, "-framerate", t.m.clock.FPS, "-i", "pipe:0",
-		"-vf", "pad=ceil(iw/2)*2:ceil(ih/2)*2,scale=out_color_matrix=bt709:out_range=tv,format=yuv420p",
+		// Chrome's JPEGs are full-range BT.601. Saying so, and rounding accurately, keeps white white: the
+		// default conversion lands chroma one step off and tints white to #fdffff.
+		"-vf", "pad=ceil(iw/2)*2:ceil(ih/2)*2,scale=in_color_matrix=bt601:in_range=pc:out_color_matrix=bt709:out_range=tv:flags=accurate_rnd+full_chroma_int,format=yuv420p",
 		"-c:v", "libx264", "-preset", "medium", "-crf", crf,
 		"-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", path)
 	var stderr bytes.Buffer
