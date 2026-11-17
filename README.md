@@ -66,7 +66,7 @@ Every line of text sits within 2 px of the original and appears on the same fram
 ```
 rav probe   <video>                         size, frame rate, frames, sound
 rav cuts    <video>                         every cut, jump cut and punch-in
-rav frames  <video> --range 80f,90f         consecutive frames and a contact sheet
+rav frames  <video> --range 80f,90f         consecutive frames and a contact sheet (--every 8 to skim)
 rav color   <video> --at 2.5 120,40,3       exact colours
 rav changes <video> --roi x,y,w,h           every frame a box changes
 rav ink     <video> --at 2.5 --roi x,y,w,h  the exact box of a line of text
@@ -91,6 +91,6 @@ To render, rav opens one headless browser window per worker. Each worker seeks t
 
 ## Credits
 
-The idea comes from HeyGen's HyperFrames [`reverse-any-video`](https://github.com/heygen-com/hyperframes/tree/main/skills/reverse-any-video) skill. rav's code is its own. `skill/references/match.md` and `animated.md` are adapted from that skill's references under Apache-2.0, with the license in `third_party/hyperframes/LICENSE`.
+The idea comes from HeyGen's HyperFrames [`reverse-any-video`](https://github.com/heygen-com/hyperframes/tree/main/skills/reverse-any-video) skill. rav's code and skill are its own; some of the matching techniques in `skill/references/` come from that skill's references (Apache-2.0, license in `third_party/hyperframes/LICENSE`).
 
 Rebuild videos you have the right to use.

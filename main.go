@@ -15,8 +15,9 @@ const usage = `rav rebuilds a video as an editable HTML composition and checks i
 Measure the original:
   rav probe  <video> [--json]                       size, frame rate, frames, sound
   rav cuts   <video> [--json]                       every cut, jump cut and punch-in
-  rav frames <video> --range a,b | --at t,... [--roi x,y,w,h] [-o dir]
-                                                     frames as PNGs, plus a contact sheet for a range
+  rav frames <video> --range a,b [--every n] | --at t,... [--roi x,y,w,h] [-o dir]
+                                                     frames as PNGs, plus a contact sheet for a range;
+                                                     --every 8 samples every 8th frame of a long stretch
   rav color  <video|image> [--at t] x,y[,r] ...     exact colours, averaged over a (2r+1) box
   rav changes <video> [--roi x,y,w,h] [--from t] [--to t] [--min 3]
                                                      every frame a box changes: captions, pop-ons, fades

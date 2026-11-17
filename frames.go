@@ -44,11 +44,11 @@ func cmdProbe(argv []string) error {
 }
 
 func cmdFrames(argv []string) error {
-	a, err := parseArgs(argv, "range: at: roi: o:")
+	a, err := parseArgs(argv, "range: every: at: roi: o:")
 	if err != nil {
 		return err
 	}
-	if err := a.need(1, "frames <video> --range a,b | --at t,... [--roi x,y,w,h] [-o dir]"); err != nil {
+	if err := a.need(1, "frames <video> --range a,b [--every n] | --at t,... [--roi x,y,w,h] [-o dir]"); err != nil {
 		return err
 	}
 	v, err := probe(a.pos[0])
@@ -91,20 +91,32 @@ func cmdFrames(argv []string) error {
 		if last < first {
 			return fmt.Errorf("the range %s is empty", a.vals["range"])
 		}
-		count := last - first + 1
+		every, err := a.int("every", 1)
+		if err != nil {
+			return err
+		}
+		if every < 1 {
+			return errors.New("--every wants a whole number of frames, 1 or more")
+		}
+		count := (last-first)/every + 1
+		last = first + (count-1)*every
 		if count > 240 {
-			return fmt.Errorf("%d frames is more than anyone can look at; read 240 or fewer at a time", count)
+			return fmt.Errorf("%d frames is more than anyone can look at; read 240 or fewer at a time (raise --every)", count)
 		}
 		var filters []string
 		if v.VFR {
 			filters = append(filters, "fps="+v.FPS)
 		}
+		if every > 1 {
+			filters = append(filters, fmt.Sprintf("select='not(mod(n\\,%d))'", every))
+		}
 		if crop != "" {
 			filters = append(filters, crop)
 		}
-		pattern := filepath.Join(dir, "f%06d.png")
+		// Frames are written in order as s<i>.png, tiled into the sheet, then named after their frame.
+		pattern := filepath.Join(dir, "s%06d.png")
 		args := []string{"-ss", ftoa(v.seekTo(first)), "-i", v.Path, "-vf", afterSeek(filters...),
-			"-frames:v", strconv.Itoa(count), "-start_number", strconv.Itoa(first), pattern}
+			"-fps_mode", "vfr", "-frames:v", strconv.Itoa(count), "-start_number", "0", pattern}
 		if err := ffmpeg(args...); err != nil {
 			return err
 		}
@@ -112,12 +124,22 @@ func cmdFrames(argv []string) error {
 		rows := (count + cols - 1) / cols
 		tw := min(w, 2400/cols) / 2 * 2
 		sheet := filepath.Join(dir, fmt.Sprintf("sheet_f%06d-f%06d.png", first, last))
-		if err := ffmpeg("-start_number", strconv.Itoa(first), "-i", pattern,
+		if err := ffmpeg("-start_number", "0", "-i", pattern,
 			"-vf", fmt.Sprintf("scale=%d:-2,tile=%dx%d:padding=4:color=white", tw, cols, rows), "-frames:v", "1", sheet); err != nil {
 			return err
 		}
-		fmt.Printf("%d frames, f%d to f%d (%.6f to %.6f s), as %s\n", count, first, last, v.stamp(first), v.stamp(last), filepath.Join(dir, "f<frame>.png"))
-		fmt.Printf("sheet: %s, %d per row, left to right then down\n", sheet, cols)
+		for i := 0; i < count; i++ {
+			k := first + i*every
+			if err := os.Rename(filepath.Join(dir, fmt.Sprintf("s%06d.png", i)), filepath.Join(dir, fmt.Sprintf("f%06d.png", k))); err != nil {
+				return err
+			}
+		}
+		step := ""
+		if every > 1 {
+			step = fmt.Sprintf(" every %d", every)
+		}
+		fmt.Printf("%d frames, f%d to f%d%s (%.6f to %.6f s), as %s\n", count, first, last, step, v.stamp(first), v.stamp(last), filepath.Join(dir, "f<frame>.png"))
+		fmt.Printf("sheet: %s, %d per row, left to right then down; tile i is frame %d + %d*i\n", sheet, cols, first, every)
 	case a.vals["at"] != "":
 		ks, err := v.framesOf(a.vals["at"])
 		if err != nil {
